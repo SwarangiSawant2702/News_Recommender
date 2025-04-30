@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📰 Smart News Recommender</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f0f8ff, #e6f7ff);
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0b3d91;
+      font-size: 2.5em;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    .form-section, .news-section {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    select, input[type="text"], button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin: 5px 0;
+    }
+
+    /* Button Styles with special effects */
+    button {
+      background-color: #0b3d91;
+      color: white;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out; /* Smooth transition for all properties */
+    }
+
+    /* Hover Effect */
+    button:hover {
+      background-color: #07407a;
+      transform: translateY(-3px); /* Slightly raise the button */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Add more shadow on hover */
+    }
+
+    /* Focus Effect */
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #74b9ff;
+    }
+
+    /* Active Effect (when clicked) */
+    button:active {
+      transform: scale(0.98); /* Slightly shrink when clicked */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Return to original shadow */
+    }
+
+    /* Gradient Effect on Hover */
+    button:hover {
+      background: linear-gradient(45deg, #0b3d91, #0b3d91, #07407a); /* Gradient effect on hover */
+      color: white;
+    }
+
+    .news-card {
+      border: 1px solid #ddd;
+      border-left: 5px solid #0b3d91;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+    }
+    .flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .right-align {
+      text-align: right;
+    }
+    #filters {
+      display: none;
+      margin-top: 10px;
+    }
+    .right-button {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    /* Styling for Read More button */
+    .read-more-btn {
+      background-color: #0b3d91;
+      color: white;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: none;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out; /* Smooth transition for all properties */
+      text-decoration: none; /* Remove link underline */
+      display: inline-block;
+    }
+
+    /* Hover Effect for Read More */
+    .read-more-btn:hover {
+      background-color: #07407a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Focus Effect */
+    .read-more-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #74b9ff;
+    }
+
+    /* Active Effect (when clicked) */
+    .read-more-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>📰 Smart News Recommender</h1>
+
+  <div class="container">
+    <div class="right-button">
+      <a href="past-news.html">
+        <button>
+          📆 View Past Days News
+        </button>
+      </a>
+    </div>
+
+    <div class="form-section">
+      <form id="recommend-form">
+        <label for="category">Choose a Category:</label><br>
+        <select name="user_input" id="category">
+          <option value="Technology">Technology</option>
+          <option value="Health">Health</option>
+          <option value="Finance">Finance</option>
+          <option value="Politics">Politics</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Science">Science</option>
+          <option value="Sports">Sports</option>
+        </select>
+        <br><br>
+        <button type="submit">Get Top 5 Recommendations</button>
+      </form>
+    </div>
+
+    <div class="news-section">
+      <h2>🔍 Recommended Articles</h2>
+      <div id="recommendations"></div>
+    </div>
+
+    <div class="news-section">
+      <h2>📰 Today's Top News</h2>
+      <div id="today-news"></div>
+    </div>
+
+    <div class="news-section">
+      <h2>📅 Past News</h2>
+      <div id="past-news"></div>
+    </div>
+  </div>
+
+  <script>
+    function togglePastNews() {
+      const filterDiv = document.getElementById('filters');
+      filterDiv.style.display = filterDiv.style.display === 'none' ? 'block' : 'none';
+    }
+
+    fetch('/today-news')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('today-news');
+        container.innerHTML = data.articles.map(a => `  
+          <div class="news-card">
+            <h4>${a.title}</h4>
+            <p>${a.description}</p>
+            <a href="${a.url}" target="_blank" class="read-more-btn">Read more</a>
+          </div>
+        `).join('');
+      });
+
+    document.getElementById('recommend-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const category = document.getElementById('category').value;
+      const formData = new FormData();
+      formData.append('user_input', category);
+
+      const res = await fetch('/recommend', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+      const container = document.getElementById('recommendations');
+      container.innerHTML = data.recommendations.map(r => `  
+        <div class="news-card">
+          <h4>${r.title}</h4>
+          <p>${r.description}</p>
+          <a href="${r.url}" target="_blank" class="read-more-btn">Read more</a>
+        </div>
+      `).join('');
+    };
+
+    async function loadPastNews() {
+      const date = document.getElementById('filter-date').value;
+      const category = document.getElementById('filter-category').value;
+
+      const url = new URL('/past-news', window.location.origin);
+      if (date) url.searchParams.append('date', date);
+      if (category) url.searchParams.append('category', category);
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const container = document.getElementById('past-news');
+      container.innerHTML = data.articles.map(a => `  
+        <div class="news-card">
+          <h4>${a.title}</h4>
+          <p>${a.description}</p>
+          <a href="${a.url}" target="_blank" class="read-more-btn">Read more</a>
+          <small><br><b>Date:</b> ${a.fetched_date}</small>
+        </div>
+      `).join('');
+    };
+
+    
+  </script>
+</body>
+</html>

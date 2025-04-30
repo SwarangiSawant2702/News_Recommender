@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📅 Past News</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #ffffff, #e6f0ff);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #0b3d91;
+      margin-bottom: 30px;
+    }
+    .filter-bar {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 900px;
+      margin: auto auto 30px;
+    }
+    .filter-bar input, .filter-bar select, .filter-bar button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    /* Button Styles with special effects */
+    button {
+      background-color: #0b3d91;
+      color: white;
+      cursor: pointer;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out; /* Smooth transition for all properties */
+    }
+
+    /* Hover Effect */
+    button:hover {
+      background-color: #07407a;
+      transform: translateY(-3px); /* Slightly raise the button */
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Add more shadow on hover */
+    }
+
+    /* Focus Effect */
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #74b9ff;
+    }
+
+    /* Active Effect (when clicked) */
+    button:active {
+      transform: scale(0.98); /* Slightly shrink when clicked */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Return to original shadow */
+    }
+
+    /* Gradient Effect on Hover */
+    button:hover {
+      background: linear-gradient(45deg, #0b3d91, #0b3d91, #07407a); /* Gradient effect on hover */
+      color: white;
+    }
+
+    .news-card {
+      background-color: #f9f9f9;
+      border-left: 5px solid #0b3d91;
+      padding: 20px;
+      margin: 10px auto;
+      max-width: 900px;
+      border-radius: 12px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+    }
+
+    /* Special styles for the "Read more" button */
+    .read-more-btn {
+      background-color: #0b3d91;
+      color: white;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      border: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out;
+      text-decoration: none; /* Remove underline from the link */
+      display: inline-block; /* Ensure button takes only necessary width */
+      margin-top: 10px;
+    }
+
+    /* Hover Effect for "Read more" button */
+    .read-more-btn:hover {
+      background-color: #07407a;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Focus Effect for "Read more" button */
+    .read-more-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #74b9ff;
+    }
+
+    /* Active Effect for "Read more" button */
+    .read-more-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Gradient Effect on Hover for "Read more" button */
+    .read-more-btn:hover {
+      background: linear-gradient(45deg, #0b3d91, #0b3d91, #07407a);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>📅 Past News</h1>
+
+  <div class="filter-bar">
+    <label>Date:</label>
+    <input type="date" id="filter-date">
+    <label>Category:</label>
+    <select id="filter-category">
+      <option value="">All</option>
+      <option value="Technology">Technology</option>
+      <option value="Health">Health</option>
+      <option value="Finance">Finance</option>
+      <option value="Politics">Politics</option>
+      <option value="Entertainment">Entertainment</option>
+      <option value="Science">Science</option>
+      <option value="Sports">Sports</option>
+    </select>
+    <button onclick="loadPastNews()">Apply Filters</button>
+    <a href="/" style="float: right;">🏠 Home</a>
+  </div>
+
+  <div id="past-news"></div>
+
+  <script>
+    async function loadPastNews() {
+      const date = document.getElementById('filter-date').value;
+      const category = document.getElementById('filter-category').value;
+
+      const url = new URL('/past-news', window.location.origin);
+      if (date) url.searchParams.append('date', date);
+      if (category) url.searchParams.append('category', category);
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const container = document.getElementById('past-news');
+      container.innerHTML = data.articles.map(a => `
+        <div class="news-card">
+          <h4>${a.title}</h4>
+          <p>${a.description}</p>
+          <a href="${a.url}" target="_blank" class="read-more-btn">Read more</a><br>
+          <small><b>Date:</b> ${a.fetched_date}</small>
+        </div>
+      `).join('');
+    }
+
+    window.onload = loadPastNews;
+  </script>
+</body>
+</html>

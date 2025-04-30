@@ -1,0 +1,8 @@
+requests
+pandas
+nltk
+gensim
+scikit-learn
+python-dotenv
+flask==2.0.2
+flask
